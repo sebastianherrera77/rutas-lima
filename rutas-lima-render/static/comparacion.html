@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101412">
+  <title>Rendimiento — Rutas de Lima</title>
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body class="pagina-comparacion">
+  <header class="topbar">
+    <a class="marca" href="/" aria-label="Rutas de Lima, inicio">
+      <span class="marca-icono" aria-hidden="true">R</span>
+      <span>rutas<span class="marca-acento">.</span><small>LABORATORIO DE GRAFOS</small></span>
+    </a>
+    <nav class="nav-principal" aria-label="Navegación principal">
+      <a class="nav-enlace" href="/">Explorador</a>
+      <a class="nav-enlace activo" href="/static/comparacion.html">Rendimiento</a>
+    </nav>
+    <span class="estado-modelo"><span></span> ANÁLISIS COMPARATIVO</span>
+  </header>
+
+  <main class="shell">
+    <section class="intro intro-comparacion">
+      <div>
+        <p class="eyebrow"><span class="punto-verde"></span> OBSERVABILIDAD DEL ALGORITMO</p>
+        <h1>Cada algoritmo tiene<br><span>su propia estrategia.</span></h1>
+        <p class="intro-texto">Compara exploraciones, operaciones y tiempos sobre el mismo grafo y el mismo par de nodos.</p>
+      </div>
+      <a class="boton boton-secundario volver" href="/">← Volver al explorador</a>
+    </section>
+
+    <section class="comparacion-controles">
+      <div><span class="campo-label">GRAFO DE PRUEBA</span><label class="campo"><select id="modo" aria-label="Grafo para comparar"><option value="real">Miraflores · calles reales</option><option value="lima">Lima · modelo de distritos</option></select></label><small>Pesos no negativos para una comparación válida con Dijkstra.</small></div>
+      <label class="campo"><span class="campo-label">ORIGEN</span><select id="origen"></select></label>
+      <label class="campo"><span class="campo-label">DESTINO</span><select id="destino"></select></label>
+      <button id="btn" class="boton boton-principal">Comparar algoritmos <span aria-hidden="true">↗</span></button>
+    </section>
+
+    <section class="indicadores" aria-label="Métricas comparadas">
+      <article class="indicador"><span class="indicador-icono">◉</span><div><span>EXPANSIÓN</span><strong>Nodos explorados</strong><small>Alcance de cada búsqueda</small></div></article>
+      <article class="indicador"><span class="indicador-icono icono-ambar">◷</span><div><span>EFICIENCIA</span><strong>Tiempo de ejecución</strong><small>Una ejecución por algoritmo</small></div></article>
+      <article class="indicador"><span class="indicador-icono icono-azul">⌘</span><div><span>ESCALA</span><strong>Caminos calculados</strong><small>Un par o todos los pares</small></div></article>
+    </section>
+
+    <section class="graficos" aria-label="Gráficos comparativos">
+      <article class="grafico-card"><div class="grafico-titulo"><span>01 / RECORRIDO</span><h2>Nodos explorados</h2></div><canvas id="g1" aria-label="Gráfico de nodos explorados"></canvas></article>
+      <article class="grafico-card"><div class="grafico-titulo"><span>02 / VELOCIDAD</span><h2>Tiempo de ejecución</h2></div><canvas id="g2" aria-label="Gráfico de tiempos de ejecución"></canvas></article>
+      <article class="grafico-card"><div class="grafico-titulo"><span>03 / COBERTURA</span><h2>Caminos calculados</h2></div><canvas id="g3" aria-label="Gráfico de caminos calculados"></canvas></article>
+    </section>
+
+    <section class="nota-johnson">
+      <span class="nota-j-icono">i</span>
+      <div><strong>Una comparación con contexto</strong><p>Los cuatro primeros algoritmos resuelven un par origen–destino. Johnson calcula todos los pares en una ejecución; su escala de trabajo es distinta. Los tiempos son orientativos y varían entre ejecuciones.</p></div>
+    </section>
+
+    <section class="tabla-resultados">
+      <div class="seccion-titulo"><div><p class="eyebrow">DATOS DE LA EJECUCIÓN</p><h2>Resultados detallados</h2></div><span class="tabla-unidad">UNIDADES DE TRABAJO Y DISTANCIA</span></div>
+      <div class="tabla-wrap"><div class="tabla" id="tabla"><p class="estado-cargando">Selecciona un par de nodos para comparar.</p></div></div>
+    </section>
+    <footer class="pie"><span>RUTAS.LAB</span><span>Implementaciones propias en Python · Resultados de una ejecución</span></footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/static/js/graficos.js"></script>
+</body>
+</html>

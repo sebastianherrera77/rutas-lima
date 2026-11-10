@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101412">
+  <meta name="description" content="Explora y compara algoritmos de caminos mínimos en un grafo didáctico de Lima.">
+  <title>Rutas de Lima — Explorador de algoritmos</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body class="pagina-explorador">
+  <header class="topbar">
+    <a class="marca" href="/" aria-label="Rutas de Lima, inicio">
+      <span class="marca-icono" aria-hidden="true">R</span>
+      <span>rutas<span class="marca-acento">.</span><small>LABORATORIO DE GRAFOS</small></span>
+    </a>
+    <nav class="nav-principal" aria-label="Navegación principal">
+      <a class="nav-enlace activo" href="/">Explorador</a>
+      <a class="nav-enlace" href="/static/comparacion.html">Rendimiento</a>
+    </nav>
+    <span class="estado-modelo"><span></span> CALLES REALES + ALGORITMOS PROPIOS</span>
+  </header>
+
+  <main class="explorador-app">
+    <section class="mapa-escenario" aria-label="Explorador de rutas en el mapa">
+      <div id="mapa" role="application" aria-label="Mapa interactivo con nodos, conexiones y ruta calculada"></div>
+      <div class="mapa-sombra" aria-hidden="true"></div>
+
+      <section class="busqueda-flotante" aria-label="Configurar búsqueda">
+        <div class="busqueda-titulo">
+          <div><span class="punto-verde"></span><span>EXPLORADOR DE RUTAS</span></div>
+          <span id="mapaModo" class="modo-insignia">Grafo de Lima</span>
+        </div>
+        <div class="busqueda-opciones">
+          <label class="campo">
+            <span class="campo-label">ALGORITMO</span>
+            <select id="algo">
+              <option value="" disabled selected>Selecciona un algoritmo</option>
+              <option value="bfs">BFS · búsqueda por niveles</option>
+              <option value="dfs">DFS · búsqueda en profundidad</option>
+              <option value="dijkstra">Dijkstra · pesos no negativos</option>
+              <option value="bellman-ford">Bellman–Ford · pesos negativos</option>
+              <option value="johnson">Johnson · todos los pares</option>
+            </select>
+          </label>
+          <label class="campo">
+            <span class="campo-label">TIPO DE GRAFO</span>
+            <select id="modo">
+              <option value="real">Miraflores · calles reales (OSMnx)</option>
+              <option value="lima">Lima · modelo de distritos</option>
+              <option value="academico">Académico · pesos negativos</option>
+              <option value="ciclo">Académico · ciclo negativo</option>
+            </select>
+          </label>
+        </div>
+        <div class="busqueda-ruta">
+          <label class="campo campo-par">
+            <span class="campo-label" id="lblPar">ORIGEN Y DESTINO</span>
+            <span class="select-par">
+              <span class="punto-ruta punto-origen" aria-hidden="true"></span>
+              <select id="origen" aria-label="Nodo de origen"></select>
+              <span class="conector-ruta" aria-hidden="true"></span>
+              <span class="punto-ruta punto-destino" aria-hidden="true"></span>
+              <select id="destino" aria-label="Nodo de destino"></select>
+            </span>
+          </label>
+          <div class="acciones">
+            <button id="btnCalc" class="boton boton-principal"><span aria-hidden="true">⌕</span> Buscar</button>
+            <button id="btnRuta" class="boton boton-principal oculto"><span aria-hidden="true">⌕</span> Calcular ruta</button>
+            <button id="btnTodos" class="boton boton-secundario oculto">Calcular todos los pares</button>
+          </div>
+        </div>
+        <p id="algoAyuda" class="ayuda-control">Selecciona un algoritmo y los nodos para explorar el grafo.</p>
+      </section>
+
+      <aside class="mapa-info panel" aria-label="Información del grafo">
+        <div class="info-titulo"><span class="info-punto"></span><div><strong id="mapaInfoNombre">GRAFO DE LIMA</strong><small id="mapaInfoTipo">MODELO DIDÁCTICO</small></div></div>
+        <p class="info-descripcion" id="mapaInfoDescripcion">Una red de distritos para visualizar cómo exploran los algoritmos.</p>
+        <div class="info-metricas">
+          <div><strong id="statNodos">—</strong><span>NODOS</span></div>
+          <i></i>
+          <div><strong id="statAristas">—</strong><span>CONEXIONES</span></div>
+        </div>
+        <div class="info-leyenda">
+          <span class="campo-label">ESTADO DE EXPLORACIÓN</span>
+          <span><i class="leyenda-nodo leyenda-pendiente"></i>Pendiente</span>
+          <span><i class="leyenda-nodo leyenda-visitado"></i>Explorado</span>
+          <span><i class="leyenda-nodo leyenda-actual"></i>Nodo actual</span>
+          <span><i class="leyenda-ruta"></i>Ruta encontrada</span>
+        </div>
+        <p class="nota-mapa"><span id="notaRed">Red vial de OpenStreetMap. No incluye tráfico en tiempo real.</span></p>
+      </aside>
+
+      <aside class="panel panel-resultados panel-flotante" id="panel" aria-live="polite">
+        <div class="panel-vacio">
+          <span class="panel-icono" aria-hidden="true">⌁</span>
+          <p class="eyebrow">LISTO PARA EXPLORAR</p>
+          <h2>Tu siguiente ruta empieza aquí.</h2>
+          <p>Elige algoritmo, origen y destino. Sigue cada paso sobre el mapa.</p>
+        </div>
+      </aside>
+
+      <section class="reproductor-flotante" aria-label="Controles de animación">
+        <div class="reproductor">
+          <span class="reproductor-titulo">RECORRIDO</span>
+          <button id="btnAnt" class="boton-icono" aria-label="Paso anterior" title="Paso anterior">←</button>
+          <button id="btnPlay" class="boton boton-reproducir"><span aria-hidden="true">▶</span> Reproducir</button>
+          <button id="btnPausa" class="boton-icono" aria-label="Pausar animación" title="Pausar">Ⅱ</button>
+          <button id="btnSig" class="boton-icono" aria-label="Paso siguiente" title="Paso siguiente">→</button>
+        </div>
+        <label class="velocidad">Velocidad <select id="velocidad" aria-label="Velocidad de animación"><option value="1200">Lenta</option><option value="700" selected>Normal</option><option value="150">Rápida</option></select></label><button id="btnFin" class="boton boton-secundario">Ver resultado</button><div class="progreso-contenedor"><span id="pasoInfo" class="nota">La animación aparecerá aquí</span><div class="progreso-barra"><span id="progresoPaso"></span></div></div>
+      </section>
+
+      <div class="mapa-creditos">CARTOGRAFÍA © OPENSTREETMAP</div>
+    </section>
+
+    <section id="johnson" class="johnson johnson-seccion oculto" aria-label="Proceso y matriz de Johnson">
+      <div class="seccion-titulo">
+        <div><p class="eyebrow">ALL-PAIRS SHORTEST PATH</p><h2>Proceso de Johnson</h2></div>
+        <p>Calcula los caminos mínimos entre todos los pares. Selecciona una celda para ver la ruta.</p>
+      </div>
+      <div class="johnson-grid">
+        <div class="tabla-wrap"><div class="tabla" id="matriz"></div></div>
+        <div class="panel panel-detalle" id="detalle"><div class="panel-vacio"><h2>Explora la matriz</h2><p>Elige cualquier celda para destacar su recorrido en el mapa.</p></div></div>
+      </div>
+    </section>
+
+    <footer class="pie"><span>RUTAS.LAB</span><span>Algoritmos implementados desde cero en Python · Cartografía © OpenStreetMap</span></footer>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/static/js/mapa.js"></script>
+  <script src="/static/js/animacion.js"></script>
+  <script src="/static/js/johnson.js"></script>
+</body>
+</html>
